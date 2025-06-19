@@ -1,0 +1,38 @@
+name: Build and Run ASP.NET Core App
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the project
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run the application (test launch)
+        run: |
+          nohup dotnet run --no-build --project ./WarehouseXApp > output.log 2>&1 &
+          sleep 10
+          if grep -q "Now listening on" output.log; then
+            echo "✅ App started successfully"
+          else
+            echo "❌ Failed to start app"
+            cat output.log
+            exit 1
+          fi

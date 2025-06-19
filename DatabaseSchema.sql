@@ -1,0 +1,26 @@
+CREATE TABLE Customers (
+    Id INT PRIMARY KEY IDENTITY,
+    Name NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Products (
+    Id INT PRIMARY KEY IDENTITY,
+    Name NVARCHAR(100) NOT NULL,
+    Price DECIMAL(18, 2) NOT NULL
+);
+
+CREATE TABLE Orders (
+    Id INT PRIMARY KEY IDENTITY,
+    OrderDate DATETIME NOT NULL,
+    CustomerId INT NOT NULL,
+    FOREIGN KEY (CustomerId) REFERENCES Customers(Id)
+);
+
+CREATE TABLE OrderItems (
+    Id INT PRIMARY KEY IDENTITY,
+    OrderId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);

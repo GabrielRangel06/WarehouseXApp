@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '7.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -26,13 +26,15 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run the application (test launch)
+        env:
+          ASPNETCORE_URLS: http://0.0.0.0:5000
         run: |
-          nohup dotnet run --no-build --project ./WarehouseXApp.csproj > output.log 2>&1 &
+          dotnet run --no-build --project ./WarehouseXApp.csproj &
           sleep 10
-          if grep -q "Now listening on" output.log; then
-            echo "✅ App started successfully"
+          echo "🔍 Checking if the app is running..."
+          if curl --fail http://localhost:5000/api/orders/recent; then
+            echo "✅ App responded successfully."
           else
-            echo "❌ Failed to start app"
-            cat output.log
+            echo "❌ App failed to respond on port 5000"
             exit 1
           fi

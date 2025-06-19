@@ -2,7 +2,7 @@ name: Build and Run ASP.NET Core App
 
 on:
   push:
-    branches: [ "master " ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 

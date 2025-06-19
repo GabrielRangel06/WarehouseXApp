@@ -1,4 +1,4 @@
-name: Build and Run ASP.NET Core App
+name: Publish and Run ASP.NET Core App
 
 on:
   push:
@@ -7,34 +7,39 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-and-run:
+  publish-and-run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📦 Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup .NET
+      - name: 📁 Show project directory structure
+        run: |
+          echo "🔍 Mostrando estructura de carpetas:"
+          ls -R
+          echo "🔍 Buscando archivo .csproj:"
+          find . -name "*.csproj"
+
+      - name: 🛠️ Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
 
-      - name: Restore dependencies
+      - name: 📥 Restore dependencies
         run: dotnet restore
 
-      - name: Build the project
+      - name: 🧱 Build the project
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run the application (test launch)
+      - name: 🚀 Publish the application
+        run: dotnet publish WarehouseXApp.csproj -c Release -o ./publish
+
+      - name: 🧪 Run and verify the API
         env:
           ASPNETCORE_URLS: http://0.0.0.0:5000
         run: |
-          dotnet run --no-build --project ./WarehouseXApp.csproj &
+          ./publish/WarehouseXApp &
           sleep 10
-          echo "🔍 Checking if the app is running..."
-          if curl --fail http://localhost:5000/api/orders/recent; then
-            echo "✅ App responded successfully."
-          else
-            echo "❌ App failed to respond on port 5000"
-            exit 1
-          fi
+          echo "🔍 Verificando el endpoint:"
+          curl --fail http://localhost:5000/api/orders/recent || (echo "❌ Falló la ejecución de la app" && exit 1)
